@@ -39,8 +39,18 @@ function checkHardware() {
 
   // Anti-tamper
   const props = ["userAgent", "hardwareConcurrency", "platform", "deviceMemory"];
-  if (props.some((p) => Object.prototype.hasOwnProperty.call(navigator, p))) {
-    blocked = true;
+  for (const p of props) {
+    if (Object.prototype.hasOwnProperty.call(navigator, p)) {
+      blocked = true;
+    }
+    try {
+      const desc = Object.getOwnPropertyDescriptor(Navigator.prototype, p);
+      if (desc && desc.get && desc.get.toString().indexOf("[native code]") === -1) {
+        blocked = true;
+      }
+    } catch (e) {
+      // Ignore
+    }
   }
 
   return blocked;

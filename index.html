@@ -140,9 +140,19 @@
         var tampered = false;
         var props = ['userAgent', 'hardwareConcurrency', 'platform', 'deviceMemory'];
         for (var i = 0; i < props.length; i++) {
-          if (Object.prototype.hasOwnProperty.call(navigator, props[i])) {
+          var p = props[i];
+          if (Object.prototype.hasOwnProperty.call(navigator, p)) {
             tampered = true;
           }
+          try {
+            var desc = Object.getOwnPropertyDescriptor(Navigator.prototype, p);
+            if (desc && desc.get) {
+              var funcStr = desc.get.toString();
+              if (funcStr.indexOf('[native code]') === -1) {
+                tampered = true;
+              }
+            }
+          } catch(e) {}
         }
         if (tampered) {
           blocked = true;
