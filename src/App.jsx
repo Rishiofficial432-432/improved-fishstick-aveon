@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import anime from "animejs";
 import aveonLogo from "./assets/aveon-logo.png";
+import { Analytics } from '@vercel/analytics/react';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -888,6 +889,9 @@ export default function App() {
 
       {/* Modal */}
       {modal && <Modal type={modal} onClose={closeModal} />}
+      
+      {/* Vercel Analytics */}
+      <Analytics />
     </>
   );
 }
