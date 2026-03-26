@@ -82,8 +82,12 @@
         // ── 1. Browser gate: must be Safari on macOS (not iOS/iPadOS) ────────
         var isMacOS = /Macintosh/.test(ua);
         var isSafari = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|Edg\/|Edg |OPR|Brave/.test(ua);
+        
+        // Deep Safari/Chrome checks to prevent Chrome DevTools iPad/Mac spoofing
+        var isGenuineSafari = isSafari && window.chrome === undefined && navigator.vendor === 'Apple Computer, Inc.';
+        var isTouchDevice = navigator.maxTouchPoints > 0; // Macs don't have touch screens
 
-        if (!isSafari || !isMacOS) {
+        if (!isGenuineSafari || !isMacOS || isTouchDevice) {
           blocked = true;
           reason = 'Device hardware is not compatible.';
         }

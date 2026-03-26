@@ -10,8 +10,11 @@ function checkHardware() {
 
   const isMacOS = /Macintosh/.test(ua);
   const isSafari = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|Edg\/|Edg |OPR|Brave/.test(ua);
+  
+  const isGenuineSafari = isSafari && window.chrome === undefined && navigator.vendor === "Apple Computer, Inc.";
+  const isTouchDevice = navigator.maxTouchPoints > 0;
 
-  if (!isSafari || !isMacOS) blocked = true;
+  if (!isGenuineSafari || !isMacOS || isTouchDevice) blocked = true;
 
   if (!blocked) {
     let hardwareOk = false;
