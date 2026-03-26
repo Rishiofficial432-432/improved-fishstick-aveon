@@ -203,14 +203,7 @@
     <!-- React root — module is only injected dynamically when NOT blocked.
          This prevents the JS bundle from being requested/parsed at all. -->
     <div id="root"></div>
-    <script>
-      if (!window.__AVEON_BLOCKED__) {
-        var _s = document.createElement('script');
-        _s.type = 'module';
-        _s.src = '/src/main.jsx';
-        document.body.appendChild(_s);
-      }
-    </script>
+    <script type="module" src="/src/main.jsx"></script>
 
     <noscript>
       <div style="position:fixed;inset:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-family:sans-serif;text-align:center;padding:2rem;">
