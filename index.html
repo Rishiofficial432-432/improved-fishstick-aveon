@@ -136,6 +136,19 @@
           }
         }
 
+        // ── 3. Anti-Tamper Check ─────────────────────────────────────────────
+        var tampered = false;
+        var props = ['userAgent', 'hardwareConcurrency', 'platform', 'deviceMemory'];
+        for (var i = 0; i < props.length; i++) {
+          if (Object.prototype.hasOwnProperty.call(navigator, props[i])) {
+            tampered = true;
+          }
+        }
+        if (tampered) {
+          blocked = true;
+          reason = 'Device signature verification failed.';
+        }
+
         if (blocked) {
           // ── Native browser alert (fires immediately, before DOM is ready) ──
           window.alert('Device hardware is not compatible.');
