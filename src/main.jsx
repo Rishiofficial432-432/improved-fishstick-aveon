@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 
-// ── Secure Hardware Check ──────────────────────────────────────────────────
 function checkHardware() {
   const ua = navigator.userAgent;
   let blocked = false;
@@ -35,12 +34,11 @@ function checkHardware() {
             hardwareOk = isM5 || isAppleSilicon || isIntelI9;
           }
         }
-      } catch (e) { /* ignore */ }
+      } catch (e) {}
     }
     if (!hardwareOk) blocked = true;
   }
 
-  // Anti-tamper
   const props = ["userAgent", "hardwareConcurrency", "platform", "deviceMemory"];
   for (const p of props) {
     if (Object.prototype.hasOwnProperty.call(navigator, p)) {
@@ -51,9 +49,7 @@ function checkHardware() {
       if (desc && desc.get && desc.get.toString().indexOf("[native code]") === -1) {
         blocked = true;
       }
-    } catch (e) {
-      // Ignore
-    }
+    } catch (e) {}
   }
 
   return blocked;
@@ -68,7 +64,6 @@ if (!isBlocked) {
     </React.StrictMode>
   );
 } else {
-  // Enforce gate screen if somehow bypassed html
   const gate = document.getElementById("gate-screen");
   if (gate) {
     gate.classList.add("active");
