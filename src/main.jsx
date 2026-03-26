@@ -1,14 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter as Router } from "react-router-dom";
-
 import App from "./App.jsx";
 import "./index.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <Router>
+// Don't mount React if the hardware/browser gate blocked the page
+if (!window.__AVEON_BLOCKED__) {
+  ReactDOM.createRoot(document.getElementById("root")).render(
+    <React.StrictMode>
       <App />
-    </Router>
-  </React.StrictMode>
-);
+    </React.StrictMode>
+  );
+}

@@ -2,16 +2,220 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="./src/assets/brainwave-symbol.svg"
-    />
+    <link rel="icon" type="image/svg+xml" href="./src/assets/brainwave-symbol.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Aveon AI</title>
+    <meta name="description" content="Aveon AI — The future of artificial intelligence, automation, and AGI solutions." />
+    <style>
+      /* Gate Screen Styles */
+      #gate-screen {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: #000;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+        color: #fff;
+        text-align: center;
+        padding: 2rem;
+      }
+      #gate-screen.active { display: flex; }
+      #gate-screen svg {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 2rem;
+        opacity: 0.6;
+      }
+      #gate-screen h1 {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 0 0 1rem;
+        background: linear-gradient(135deg, #fff 0%, #888 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      #gate-screen p {
+        font-size: clamp(0.9rem, 2vw, 1.1rem);
+        color: #666;
+        max-width: 480px;
+        line-height: 1.7;
+        margin: 0;
+      }
+      #gate-screen .badge {
+        display: inline-flex;
+        gap: 0.5rem;
+        margin-top: 2rem;
+        padding: 0.5rem 1.2rem;
+        border: 1px solid #222;
+        border-radius: 100px;
+        font-size: 0.8rem;
+        color: #555;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+    </style>
+    <script>
+      // ── HTTPS Enforcement ──────────────────────────────────────────────────────
+      // Redirect HTTP → HTTPS in production (skips localhost for local dev)
+      (function () {
+        var loc = window.location;
+        if (loc.protocol === 'http:' && loc.hostname !== 'localhost' && loc.hostname !== '127.0.0.1') {
+          loc.replace('https:' + loc.href.substring(loc.protocol.length));
+        }
+      })();
+
+      // ── Browser & Hardware Compatibility Gate ──────────────────────────────────
+      // Rules:
+      //   1. Must be Safari on macOS (not iOS, not Chromium browsers)
+      //   2. Hardware: Intel Core i9 (≥8 logical cores) or Apple M5 Pro (14 cores)
+
+        (function () {
+        var ua = navigator.userAgent;
+        var blocked = false;
+        var reason = '';
+
+        // ── 1. Browser gate: must be Safari on macOS (not iOS/iPadOS) ────────
+        var isMacOS = /Macintosh/.test(ua);
+        var isSafari = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|Edg\/|Edg |OPR|Brave/.test(ua);
+
+        if (!isSafari || !isMacOS) {
+          blocked = true;
+          reason = 'Device hardware is not compatible.';
+        }
+
+        // ── 2. Hardware gate: i9 or M5 Pro ───────────────────────────────────
+        // Safari aggressively restricts WEBGL_debug_renderer_info (privacy).
+        // Primary strategy: hardwareConcurrency heuristic
+        //   • Intel i9 (8th–10th gen): 8–16 logical threads
+        //   • Apple M5 Pro:            14 performance/efficiency cores
+        //   • Both have >= 8 logical cores, while older/low-end Macs have < 8
+        // Secondary: WebGL renderer string (when extension is available)
+        if (!blocked) {
+          var hardwareOk = false;
+          var cores = navigator.hardwareConcurrency || 0;
+
+          // Primary check — core count (works in Safari's strict privacy mode)
+          // i9 and M5 Pro both expose >= 8 logical cores
+          if (cores >= 8) {
+            hardwareOk = true;
+          }
+
+          // Secondary check — WebGL renderer (Safari may expose this in some configs)
+          if (!hardwareOk) {
+            try {
+              var canvas = document.createElement('canvas');
+              var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+              if (gl) {
+                var ext = gl.getExtension('WEBGL_debug_renderer_info');
+                if (ext) {
+                  var renderer = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || '';
+                  // Apple M5 Pro chip
+                  var isM5 = /apple m5/i.test(renderer);
+                  // Apple Silicon broadly (M-series) with adequate core count
+                  var isAppleSilicon = /apple (m\d|gpu)/i.test(renderer) && cores >= 10;
+                  // Intel i9 — Iris Plus / UHD / HD graphics on i9 MacBooks
+                  var isIntelI9 = /intel/i.test(renderer) && (
+                    /iris/i.test(renderer) ||
+                    /uhd/i.test(renderer) ||
+                    /hd\s?6[0-9][0-9]/i.test(renderer)
+                  );
+                  hardwareOk = isM5 || isAppleSilicon || isIntelI9;
+                }
+              }
+            } catch (e) { /* ignore */ }
+          }
+
+          if (!hardwareOk) {
+            blocked = true;
+            reason = 'Device hardware is not compatible.';
+          }
+        }
+
+        if (blocked) {
+          // ── Native browser alert (fires immediately, before DOM is ready) ──
+          window.alert('Device hardware is not compatible.');
+
+          // ── Show full-screen gate once DOM is ready ────────────────────────
+          document.addEventListener('DOMContentLoaded', function () {
+            var gate = document.getElementById('gate-screen');
+            if (gate) {
+              gate.classList.add('active');
+              gate.setAttribute('style', 'display:flex!important;');
+              var p = gate.querySelector('p');
+              if (p) p.textContent = reason;
+            }
+            var root = document.getElementById('root');
+            if (root) root.setAttribute('style', 'display:none!important;');
+          });
+
+          // ── 1. Immutable flag — cannot be overwritten from DevTools console ──
+          try {
+            Object.defineProperty(window, '__AVEON_BLOCKED__', {
+              value: true,
+              writable: false,
+              configurable: false,
+              enumerable: false
+            });
+          } catch(e) { window.__AVEON_BLOCKED__ = true; }
+
+          // ── 2. Anti-tamper watchdog (starts after DOM loads) ─────────────────
+          document.addEventListener('DOMContentLoaded', function () {
+            function enforce() {
+              var g = document.getElementById('gate-screen');
+              var r = document.getElementById('root');
+              var gHidden = !g || getComputedStyle(g).display === 'none';
+              var rShown  = r  && getComputedStyle(r).display  !== 'none';
+              if (gHidden || rShown) {
+                // DOM was tampered — re-enforce immediately
+                window.alert('Device hardware is not compatible.');
+                if (g) g.setAttribute('style', 'display:flex!important;');
+                if (r) r.setAttribute('style', 'display:none!important;');
+              }
+            }
+            // MutationObserver: fires on ANY DOM/attribute change inside body
+            if (window.MutationObserver) {
+              new MutationObserver(enforce).observe(document.body, {
+                childList: true, subtree: true,
+                attributes: true, attributeFilter: ['style','class']
+              });
+            }
+            // Interval watchdog as redundant second layer
+            setInterval(enforce, 300);
+          });
+        }
+      })();
+    </script>
   </head>
   <body>
+    <!-- Hardware / Browser Gate Screen -->
+    <div id="gate-screen">
+      <img src="/src/assets/aveon-logo.png" alt="Aveon AI"
+           style="height:60px;width:auto;margin-bottom:1.75rem;mix-blend-mode:screen;" />
+      <h1>Access Restricted</h1>
+      <p>Device hardware is not compatible.</p>
+    </div>
+
+    <!-- React root — module is only injected dynamically when NOT blocked.
+         This prevents the JS bundle from being requested/parsed at all. -->
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if (!window.__AVEON_BLOCKED__) {
+        var _s = document.createElement('script');
+        _s.type = 'module';
+        _s.src = '/src/main.jsx';
+        document.body.appendChild(_s);
+      }
+    </script>
+
+    <noscript>
+      <div style="position:fixed;inset:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-family:sans-serif;text-align:center;padding:2rem;">
+        <p style="color:#666;font-size:1rem;">JavaScript is required to access this site.</p>
+      </div>
+    </noscript>
   </body>
 </html>
