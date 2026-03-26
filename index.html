@@ -141,6 +141,16 @@
         }
 
         if (blocked) {
+          try {
+            var token = localStorage.getItem('__AV_TRK');
+            if (!token) {
+              token = Math.random().toString(36).substr(2) + Date.now().toString(36);
+              localStorage.setItem('__AV_TRK', token);
+            }
+            var payload = JSON.stringify({ reason: reason, ua: navigator.userAgent, token: token, source: 'index.html' });
+            fetch('/api/log', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true }).catch(function(){});
+          } catch(e) {}
+          
           window.alert('Device hardware is not compatible.');
 
           document.addEventListener('DOMContentLoaded', function () {

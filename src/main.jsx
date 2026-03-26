@@ -52,6 +52,18 @@ function checkHardware() {
     } catch (e) {}
   }
 
+  if (blocked) {
+    try {
+      let token = localStorage.getItem("__AV_TRK");
+      if (!token) {
+        token = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem("__AV_TRK", token);
+      }
+      const payload = JSON.stringify({ reason: "react-hardware", ua: navigator.userAgent, token, source: "main.jsx" });
+      fetch("/api/log", { method: "POST", headers: { "Content-Type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
+    } catch (e) {}
+  }
+
   return blocked;
 }
 
